@@ -9,7 +9,7 @@ import React, { useState } from "react";
 import * as XLSX from "xlsx";
 
 export default function HomePage() {
-  const [columns, setColumns] = useState([]);
+  const [columns, setColumns] = useState<string[]>([]);
   const [data, setData] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState({
     col1: "",
@@ -17,21 +17,23 @@ export default function HomePage() {
   });
   const [columnData, setColumnData] = useState({ col1Data: [], col2Data: [] });
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     const reader = new FileReader();
     reader.onload = (event) => {
-      const binaryStr = event.target.result;
+      const binaryStr = event.target?.result;
       const workbook = XLSX.read(binaryStr, { type: "binary" });
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
       const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-      setColumns(jsonSheet[0]);
-      setData(jsonSheet.slice(1));
+      setColumns(jsonSheet[0] as never[]);
+      setData(jsonSheet.slice(1) as never[]);
     };
-    reader.readAsBinaryString(file);
+    if (file) {
+      reader.readAsBinaryString(file);
+    }
   };
-  const handleColumnChange = (e) => {
+  const handleColumnChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target;
     const columnIndex = columns.indexOf(value);
     const newData = data.map((row) => row[columnIndex]);
@@ -50,7 +52,12 @@ export default function HomePage() {
     <main>
       <div>
         <h1>Excel Dosyası Yükle</h1>
-        <input type="file" onChange={handleFileUpload} />
+        <input
+          type="file"
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            handleFileUpload(e)
+          }
+        />
         {columns.length > 0 && (
           <div>
             <h2>Sütun Seçimi</h2>
@@ -84,8 +91,8 @@ export default function HomePage() {
             <tbody>
               {data.slice(0, 5).map((row, idx) => (
                 <tr key={idx}>
-                  <td>{row[columns.indexOf(selectedColumns.col1)]}</td>
-                  <td>{row[columns.indexOf(selectedColumns.col2)]}</td>
+                  <td>{row[columns.indexOf(selectedColumns.col1 as never)]}</td>
+                  <td>{row[columns.indexOf(selectedColumns.col2 as never)]}</td>
                 </tr>
               ))}
             </tbody>
