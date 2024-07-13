@@ -2,8 +2,13 @@
 
 import { useState } from "react";
 
-const AddDropdowns = ({ input, output }) => {
-  const [dropdowns, setDropdowns] = useState([]);
+type AddDropdownsProps = {
+  input: string[];
+  output: string[];
+};
+
+const AddDropdowns = ({ input, output }: AddDropdownsProps) => {
+  const [dropdowns, setDropdowns] = useState<{ x: string; y: string }[]>([]);
 
   const addDropdown = () => {
     if (input?.length < 1 || output?.length < 1) {
@@ -12,15 +17,19 @@ const AddDropdowns = ({ input, output }) => {
     setDropdowns([...dropdowns, { x: "", y: "" }]);
   };
 
-  const removeDropdown = (index) => {
+  const removeDropdown = (index: number) => {
     const updatedDropdowns = [...dropdowns];
     updatedDropdowns.splice(index, 1);
     setDropdowns(updatedDropdowns);
   };
 
-  const handleDropdownChange = (index, field, value) => {
-    const updatedDropdowns = [...dropdowns];
-    updatedDropdowns[index][field] = value;
+  const handleDropdownChange = (
+    index: number,
+    field: string,
+    value: string
+  ) => {
+    const updatedDropdowns: { x: string; y: string }[] = [...dropdowns];
+    updatedDropdowns[index][field as keyof { x: string; y: string }] = value;
     setDropdowns(updatedDropdowns);
   };
 
