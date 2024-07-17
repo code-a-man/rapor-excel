@@ -17,7 +17,7 @@ tauri-build = { version = "1.5.3", features = [] }
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.7.0", features = [] }
+tauri = { version = "1.7.0", features = [ "fs-read-file", "fs-write-file", "fs-read-dir", "dialog-message", "dialog-open", "dialog-save"] }
 rustls = "0.23.11"
 
 [features]
