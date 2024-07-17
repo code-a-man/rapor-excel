@@ -1,109 +1,76 @@
 "use client";
 
-import AddDropdowns from "@/components/AddDropdowns";
+import React from "react";
+import FileUpload from "@/components/FileUpload";
+import ColumnSelection from "@/components/ColumnSelection";
+import DataCleanup from "@/components/DataCleanup";
 
-const input = ["X1", "X2", "X3"];
-const output = ["Y1", "Y2", "Y3"];
+import { AppProvider, useAppContext } from "@/contexts/AppContext";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Card } from "@/components/ui/card";
+import Overview from "@/components/Overview";
+import Link from "next/link";
 
-import React, { useState } from "react";
-import * as XLSX from "xlsx";
+const HomePageContent = () => {
+  const { step, setStep } = useAppContext();
+  const steps = [
+    "Dosya Seçimi",
+    "Veri Sütunu Seçimi",
+    "Veri Ayıklaması",
+    "Önizleme",
+  ];
+  const stepComponents = [FileUpload, ColumnSelection, DataCleanup, Overview];
+  return (
+    <main className="container  mx-auto flex flex-col items-center gap-2">
+      <Card className="p-4 w-[80%] mx-auto">
+        <Breadcrumb className="mb-4">
+          <BreadcrumbList>
+            {steps.slice(0, step).map((stepName, index) => (
+              <React.Fragment key={index}>
+                <BreadcrumbItem
+                  className="text-primary"
+                  onClick={() => setStep(index + 1)}
+                  // active={step === index + 1}
+                >
+                  {stepName}
+                </BreadcrumbItem>
+                {index !== steps.length - 1 && (
+                  <BreadcrumbSeparator className="text-primary" />
+                )}
+              </React.Fragment>
+            ))}
+          </BreadcrumbList>
+        </Breadcrumb>
+
+        <div>{stepComponents[step - 1]()}</div>
+      </Card>
+      <footer>
+        <p className="text-muted-foreground">
+          Made with ❤️ by{" "}
+          <Link
+            href="https://codeaman.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            Code a Man
+          </Link>
+        </p>
+      </footer>
+    </main>
+  );
+};
 
 export default function HomePage() {
-  const [columns, setColumns] = useState<string[]>([]);
-  const [data, setData] = useState([]);
-  const [selectedColumns, setSelectedColumns] = useState({
-    col1: "",
-    col2: "",
-  });
-  const [columnData, setColumnData] = useState({ col1Data: [], col2Data: [] });
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const binaryStr = event.target?.result;
-      const workbook = XLSX.read(binaryStr, { type: "binary" });
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
-      const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-      setColumns(jsonSheet[0] as never[]);
-      setData(jsonSheet.slice(1) as never[]);
-    };
-    if (file) {
-      reader.readAsBinaryString(file);
-    }
-  };
-  const handleColumnChange = (e: { target: { name: any; value: any } }) => {
-    const { name, value } = e.target;
-    const columnIndex = columns.indexOf(value);
-    const newData = data.map((row) => row[columnIndex]);
-
-    setSelectedColumns({
-      ...selectedColumns,
-      [name]: value,
-    });
-
-    setColumnData({
-      ...columnData,
-      [name === "col1" ? "col1Data" : "col2Data"]: newData,
-    });
-  };
   return (
-    <main>
-      <div>
-        <h1>Excel Dosyası Yükle</h1>
-        <input
-          type="file"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            handleFileUpload(e)
-          }
-        />
-        {columns.length > 0 && (
-          <div>
-            <h2>Sütun Seçimi</h2>
-            <select name="col1" onChange={handleColumnChange}>
-              <option value="">Sütun Seçin</option>
-              {columns.map((col, idx) => (
-                <option key={idx} value={col}>
-                  {col}
-                </option>
-              ))}
-            </select>
-            <select name="col2" onChange={handleColumnChange}>
-              <option value="">Sütun Seçin</option>
-              {columns.map((col, idx) => (
-                <option key={idx} value={col}>
-                  {col}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-        {selectedColumns.col1 && selectedColumns.col2 && (
-          <table>
-            <thead>
-              İlk 5 Sonuç Gösteriliyor
-              <tr>
-                <th>{selectedColumns.col1}</th>
-                <th>{selectedColumns.col2}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.slice(0, 5).map((row, idx) => (
-                <tr key={idx}>
-                  <td>{row[columns.indexOf(selectedColumns.col1 as never)]}</td>
-                  <td>{row[columns.indexOf(selectedColumns.col2 as never)]}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-      <div>
-        {columnData.col1Data.length > 0 && columnData.col2Data.length > 0 && (
-          <AddDropdowns input={columnData.col1Data} output={output} />
-        )}
-      </div>
-    </main>
+    <AppProvider>
+      <HomePageContent />
+    </AppProvider>
   );
 }

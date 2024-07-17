@@ -1,36 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAppContext } from "@/contexts/AppContext";
 
 type AddDropdownsProps = {
   input: string[];
-  output: string[];
+  value: string[];
 };
 
-const AddDropdowns = ({ input, output }: AddDropdownsProps) => {
-  const [dropdowns, setDropdowns] = useState<{ x: string; y: string }[]>([]);
+const AddDropdowns = ({ input, value }: AddDropdownsProps) => {
+  const { filters, setFilters } = useAppContext();
+  const [localDropdowns, setLocalDropdowns] = useState<string[]>(filters);
 
   const addDropdown = () => {
-    if (input?.length < 1 || output?.length < 1) {
+    if (input?.length < 1) {
       return;
     }
-    setDropdowns([...dropdowns, { x: "", y: "" }]);
+    setLocalDropdowns([...localDropdowns, ""]);
   };
 
   const removeDropdown = (index: number) => {
-    const updatedDropdowns = [...dropdowns];
+    const updatedDropdowns = [...localDropdowns];
     updatedDropdowns.splice(index, 1);
-    setDropdowns(updatedDropdowns);
+    setLocalDropdowns(updatedDropdowns);
+    setFilters(
+      updatedDropdowns.reduce((acc: any, item: any) => {
+        if (item) {
+          acc.push(item.trim());
+        }
+        return acc;
+      }, [])
+    );
   };
 
-  const handleDropdownChange = (
-    index: number,
-    field: string,
-    value: string
-  ) => {
-    const updatedDropdowns: { x: string; y: string }[] = [...dropdowns];
-    updatedDropdowns[index][field as keyof { x: string; y: string }] = value;
-    setDropdowns(updatedDropdowns);
+  const handleDropdownChange = (index: number, selectedValue: string) => {
+    const updatedDropdowns = [...localDropdowns];
+    updatedDropdowns[index] = selectedValue;
+    setLocalDropdowns(updatedDropdowns);
+    setFilters(
+      updatedDropdowns.reduce((acc: any, item: any) => {
+        if (item) {
+          acc.push(item.trim());
+        }
+        return acc;
+      }, [])
+    );
   };
 
   return (
@@ -41,22 +55,22 @@ const AddDropdowns = ({ input, output }: AddDropdownsProps) => {
       >
         +
       </button>
-      {dropdowns.length > 0 && (
+      {localDropdowns.length > 0 && (
         <button
           className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => removeDropdown(dropdowns.length - 1)}
+          onClick={() => removeDropdown(localDropdowns.length - 1)}
         >
           -
         </button>
       )}
-      {dropdowns.map((dropdown, index) => (
-        <div key={index} className="space-x-4">
+      {localDropdowns.map((dropdown, index) => (
+        <div key={index} className="space-x-4 flex flex-row">
           <select
             className="border border-gray-300 rounded p-2"
-            value={dropdown.x}
-            onChange={(e) => handleDropdownChange(index, "x", e.target.value)}
+            value={dropdown}
+            onChange={(e) => handleDropdownChange(index, e.target.value)}
           >
-            <option value="">Giriş Verisi Seçin</option>
+            <option value="">Sütun Seçin</option>
             {input.length > 1 &&
               input.map((item: string) => (
                 <option key={item} value={item}>
@@ -64,19 +78,7 @@ const AddDropdowns = ({ input, output }: AddDropdownsProps) => {
                 </option>
               ))}
           </select>
-          <select
-            className="border border-gray-300 rounded p-2"
-            value={dropdown.y}
-            onChange={(e) => handleDropdownChange(index, "y", e.target.value)}
-          >
-            <option value="">Hedef Yeri Seçin</option>
-            {output.length > 1 &&
-              output.map((item: string) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-          </select>
+          {dropdown && <p>Değer: {value[input.indexOf(dropdown)]}</p>}
         </div>
       ))}
     </div>
