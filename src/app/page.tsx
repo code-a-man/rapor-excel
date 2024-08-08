@@ -16,6 +16,7 @@ import {
 import { Card } from "@/components/ui/card";
 import Overview from "@/components/Overview";
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const HomePageContent = () => {
   const { step, setStep } = useAppContext();
@@ -29,24 +30,27 @@ const HomePageContent = () => {
   return (
     <main className="container  mx-auto flex flex-col items-center gap-2">
       <Card className="p-4 w-[80%] mx-auto">
-        <Breadcrumb className="mb-4">
-          <BreadcrumbList>
-            {steps.slice(0, step).map((stepName, index) => (
-              <React.Fragment key={index}>
-                <BreadcrumbItem
-                  className="text-primary"
-                  onClick={() => setStep(index + 1)}
-                  // active={step === index + 1}
-                >
-                  {stepName}
-                </BreadcrumbItem>
-                {index !== steps.length - 1 && (
-                  <BreadcrumbSeparator className="text-primary" />
-                )}
-              </React.Fragment>
-            ))}
-          </BreadcrumbList>
-        </Breadcrumb>
+        <div className="flex justify-between items-center">
+          <Breadcrumb className="mb-4">
+            <BreadcrumbList>
+              {steps.slice(0, step).map((stepName, index) => (
+                <React.Fragment key={index}>
+                  <BreadcrumbItem
+                    className="text-primary"
+                    onClick={() => setStep(index + 1)}
+                    // active={step === index + 1}
+                  >
+                    {stepName}
+                  </BreadcrumbItem>
+                  {index !== steps.length - 1 && (
+                    <BreadcrumbSeparator className="text-primary" />
+                  )}
+                </React.Fragment>
+              ))}
+            </BreadcrumbList>
+          </Breadcrumb>
+          <ThemeToggle />
+        </div>
 
         <div>{stepComponents[step - 1]()}</div>
       </Card>
