@@ -39,23 +39,33 @@ const ColumnSelection = () => {
       </div>
 
       {selectedColumns?.[0]?.column && selectedColumns?.[1]?.column && (
-        <table>
-          <thead>
-            İlk 5 Sonuç Gösteriliyor
-            <tr>
-              <th>{selectedColumns[0].columnName}</th>
-              <th>{selectedColumns[1].columnName}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {selectedColumns[0].column.slice(0, 5).map((row, idx) => (
-              <tr key={idx}>
-                <td>{selectedColumns[0].column[idx]}</td>
-                <td>{selectedColumns[1].column[idx]}</td>
+        <div>
+          <h2>İlk 5 Sonuç Gösteriliyor</h2>
+          <table className="table-auto border-collapse border border-slate-500">
+            <thead>
+              <tr className="bg-primary-foreground text-primary text-left">
+                <th className="border border-slate-500">
+                  {selectedColumns[0].columnName}
+                </th>
+                <th className="border border-slate-500">
+                  {selectedColumns[1].columnName}
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {selectedColumns[0].column.slice(0, 5).map((row, idx) => (
+                <tr key={idx} className="border border-slate-500">
+                  <td className="border border-slate-500">
+                    {selectedColumns[0].column[idx]}
+                  </td>
+                  <td className="border border-slate-500">
+                    {selectedColumns[1].column[idx]}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
       <div className="flex justify-end">
         <Button
