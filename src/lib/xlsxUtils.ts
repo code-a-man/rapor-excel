@@ -1,10 +1,5 @@
 import * as xlsx from "xlsx";
-import { save } from "@tauri-apps/api/dialog";
-import {
-  BaseDirectory,
-  writeBinaryFile,
-  writeTextFile,
-} from "@tauri-apps/api/fs";
+
 function getData(
   name: string,
   selectedItems: string[],
@@ -128,14 +123,13 @@ async function saveTemplate(selectedItems: string[], filters: string[]) {
   };
   const filename = "template.json";
   const json = JSON.stringify(data, null, 2);
-
-  const filePath = await save({
-    defaultPath: filename,
-    filters: [{ name: "JSON", extensions: ["json"] }],
-  });
-  if (filePath) {
-    await writeTextFile(filePath, json);
-  }
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 async function saveToFile(data: any[], filename: string) {
@@ -152,30 +146,14 @@ async function saveToFile(data: any[], filename: string) {
   const wb = xlsx.utils.book_new();
   xlsx.utils.book_append_sheet(wb, ws, "Sayfa 1");
 
-  const filePath = await save({
-    defaultPath: filename,
-    filters: [{ name: "EXCEL", extensions: ["xlsx"] }],
-  });
-
-  if (filePath) {
-    const wbBuffer = xlsx.write(wb, { type: "array" });
-    const UInt8Array = new Uint8Array(wbBuffer);
-    writeBinaryFile(filePath, UInt8Array);
-  }
-}
-/*
   const a = document.createElement("a");
   const wbBuffer = xlsx.write(wb, { type: "buffer" });
   const blob = new Blob([wbBuffer], { type: "application/octet-stream" });
   a.href = URL.createObjectURL(blob);
   a.download = filename;
   a.click();
-  URL.revokeObjectURL(a.href);*/
-
-/*
-
-
-export default */
+  URL.revokeObjectURL(a.href);
+}
 
 export {
   getData,
