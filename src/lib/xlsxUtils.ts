@@ -38,7 +38,9 @@ function getHeaders(sheet: xlsx.WorkSheet) {
   for (let C = range.s.c; C <= range.e.c; ++C) {
     const cell_address = { c: C, r: range.s.r };
     const cell_ref = xlsx.utils.encode_cell(cell_address);
-    headers.push(sheet[cell_ref].v);
+    if (sheet[cell_ref]?.v !== undefined) {
+      headers.push(sheet[cell_ref].v);
+    }
   }
   return headers;
 }
